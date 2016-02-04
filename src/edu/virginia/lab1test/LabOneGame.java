@@ -3,7 +3,10 @@ package edu.virginia.lab1test;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import edu.virginia.engine.display.AnimatedSprite;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Sprite;
 
@@ -16,12 +19,18 @@ public class LabOneGame extends Game{
 	/* Create a sprite object for our game. We'll use mario */
 	Sprite mario = new Sprite("Mario", "Mario.png");
 	Sprite mario2 = new Sprite("Mario2", "Mario.png");
-	
+	AnimatedSprite movingMario = new AnimatedSprite("AnimatedMario", new ArrayList<String>(Arrays.asList("animation_1.png",
+				"animation_2.png", "animation_3.png", "animation_4.png", "animation_5.png", "animation_6.png")));
 	/**
 	 * Constructor. See constructor in Game.java for details on the parameters given
 	 * */
 	public LabOneGame() {
 		super("Lab One Test Game", 500, 300);
+		movingMario.addAnimationSet("walk", Arrays.asList(0, 1, 2, 3));
+		movingMario.addAnimationSet("jump", Arrays.asList(0, 4, 5));
+		// set animation name and time
+		movingMario.setAnimation("walk");
+		movingMario.setCycleTimeInNanoSec(1000000000);
 	}
 	
 	/**
@@ -34,6 +43,8 @@ public class LabOneGame extends Game{
 		
 		/* Make sure mario is not null. Sometimes Swing can auto cause an extra frame to go before everything is initialized */
 		if(mario != null) mario.update(pressedKeys);
+		if(mario2 != null) mario2.update(pressedKeys);
+		if(movingMario != null) movingMario.update(pressedKeys);
 	}
 	
 	/**
@@ -46,23 +57,29 @@ public class LabOneGame extends Game{
 		
 		/* Same, just check for null in case a frame gets thrown in before Mario is initialized */
 		if(mario != null) {
-			mario.setxPosition(100);
-			mario.setyPosition(50);
-			mario.setPivotPoint(new Point(25, 25));
+			mario.setxPosition(50);
+			mario.setyPosition(25);
+			mario.setPivotPoint(new Point(mario.getUnscaledWidth(), mario.getUnscaledHeight() / 2));
 			mario.setRotation(mario.getRotation() + 0.001);
 			mario.setScaleX(2);
 			mario.draw(g);
 		}
 		
 		if(mario2 != null) {
-			mario2.setVisible(false);
+			//mario2.setVisible(false);
 			mario2.setxPosition(200);
-			mario2.setyPosition(100);
+			mario2.setyPosition(50);
 			mario2.setAlpha(0.5f);
-			mario2.setPivotPoint(new Point(100, 50));
+			mario2.setPivotPoint(new Point(mario.getUnscaledWidth() / 2, mario.getUnscaledHeight() / 4));
 			mario2.setRotation(Math.PI / 2);
 			mario2.setScaleY(0.5f);
 			mario2.draw(g);
+		}
+		
+		if(movingMario != null) {
+			movingMario.setxPosition(200);
+			movingMario.setyPosition(100);
+			movingMario.draw(g);
 		}
 	}
 
