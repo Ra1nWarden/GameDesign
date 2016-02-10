@@ -14,15 +14,29 @@ import javax.imageio.ImageIO;
 /**
  * A very basic display object for a java based gaming engine
  * 
- * */
+ */
 public class DisplayObject {
 
 	/* All DisplayObject have a unique id */
-	private String id;
+	protected String id;
 
 	/* The image that is displayed by this object */
-	private BufferedImage displayImage;
+	protected BufferedImage displayImage;
 	
+	protected boolean visible = true;
+
+	protected int xPosition;
+	protected int yPosition;
+
+	protected Point pivotPoint = new Point(0, 0);
+
+	protected float scaleX = 1.0f;
+	protected float scaleY = 1.0f;
+	protected double rotation;
+	protected float alpha = 1.0f;
+	protected float prevAlpha;
+
+
 	public boolean isVisible() {
 		return visible;
 	}
@@ -91,18 +105,6 @@ public class DisplayObject {
 		this.displayImage = displayImage;
 	}
 
-	private boolean visible = true;
-	
-	private int xPosition;
-	private int yPosition;
-	
-	private Point pivotPoint = new Point(0, 0);
-	
-	private float scaleX = 1.0f;
-	private float scaleY = 1.0f;
-	private double rotation;
-	private float alpha = 1.0f;
-
 	/**
 	 * Constructors: can pass in the id OR the id and image's file path and
 	 * position OR the id and a buffered image and position
@@ -124,17 +126,18 @@ public class DisplayObject {
 		return id;
 	}
 
-
 	/**
 	 * Returns the unscaled width and height of this display object
-	 * */
+	 */
 	public int getUnscaledWidth() {
-		if(displayImage == null) return 0;
+		if (displayImage == null)
+			return 0;
 		return displayImage.getWidth();
 	}
 
 	public int getUnscaledHeight() {
-		if(displayImage == null) return 0;
+		if (displayImage == null)
+			return 0;
 		return displayImage.getHeight();
 	}
 
@@ -152,11 +155,10 @@ public class DisplayObject {
 		}
 	}
 
-
 	/**
 	 * Helper function that simply reads an image from the given image name
 	 * (looks in resources\\) and returns the bufferedimage for that filename
-	 * */
+	 */
 	public BufferedImage readImage(String imageName) {
 		BufferedImage image = null;
 		try {
@@ -170,29 +172,29 @@ public class DisplayObject {
 	}
 
 	public void setImage(BufferedImage image) {
-		if(image == null) return;
+		if (image == null)
+			return;
 		displayImage = image;
 	}
-
 
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
 	 * objects state before the draw occurs. Should be overridden if necessary
 	 * to update objects appropriately.
-	 * */
+	 */
 	protected void update(ArrayList<String> pressedKeys) {
-		
+
 	}
 
 	/**
 	 * Draws this image. This should be overloaded if a display object should
 	 * draw to the screen differently. This method is automatically invoked on
 	 * every frame.
-	 * */
+	 */
 	public void draw(Graphics g) {
-		
+
 		if (displayImage != null && visible) {
-			
+
 			/*
 			 * Get the graphics and apply this objects transformations
 			 * (rotation, etc.)
@@ -200,11 +202,11 @@ public class DisplayObject {
 			Graphics2D g2d = (Graphics2D) g;
 			applyTransformations(g2d);
 
-			/* Actually draw the image, perform the pivot point translation here */
-			g2d.drawImage(displayImage, 0, 0,
-					(int) (getUnscaledWidth()),
-					(int) (getUnscaledHeight()), null);
-			
+			/*
+			 * Actually draw the image, perform the pivot point translation here
+			 */
+			g2d.drawImage(displayImage, 0, 0, (int) (getUnscaledWidth()), (int) (getUnscaledHeight()), null);
+
 			/*
 			 * undo the transformations so this doesn't affect other display
 			 * objects
@@ -216,23 +218,27 @@ public class DisplayObject {
 	/**
 	 * Applies transformations for this display object to the given graphics
 	 * object
-	 * */
+	 */
 	protected void applyTransformations(Graphics2D g2d) {
 		g2d.translate(xPosition, yPosition);
 		g2d.rotate(rotation, pivotPoint.getX(), pivotPoint.getY());
 		g2d.scale(scaleX, scaleY);
-		AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
-        g2d.setComposite(alcom);
+		AlphaComposite alcom = (AlphaComposite) g2d.getComposite();
+		prevAlpha = alcom.getAlpha();
+		AlphaComposite newAlcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, prevAlpha * alpha);
+		g2d.setComposite(newAlcom);
 	}
 
 	/**
 	 * Reverses transformations for this display object to the given graphics
 	 * object
-	 * */
+	 */
 	protected void reverseTransformations(Graphics2D g2d) {
+		AlphaComposite newAlcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, prevAlpha);
+		g2d.setComposite(newAlcom);
 		g2d.scale(1 / scaleX, 1 / scaleY);
 		g2d.rotate(-rotation, pivotPoint.getX(), pivotPoint.getY());
-		g2d.translate(0, 0);
+		g2d.translate(-xPosition, -yPosition);
 	}
 
 }

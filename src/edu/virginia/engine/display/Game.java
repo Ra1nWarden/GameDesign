@@ -14,11 +14,10 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-
 /**
  * Highest level class for creating a game in Java.
  * 
- * */
+ */
 public class Game extends DisplayObjectContainer implements ActionListener, KeyListener {
 
 	/* Frames per second this game runs at */
@@ -29,24 +28,24 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 
 	/* Timer that this game runs on */
 	private Timer gameTimer;
-	
+
 	/* The JPanel for this game */
 	private GameScenePanel scenePanel;
 
 	public Game(String gameId, int width, int height) {
 		super(gameId);
-		
+
 		setUpMainFrame(gameId, width, height);
-		
+
 		setScenePanel(new GameScenePanel(this));
-		
+
 		/* Use an absolute layout */
 		scenePanel.setLayout(null);
 	}
-	
-	
-	public void setFramesPerSecond(int fps){
-		if(fps > 0) this.FRAMES_PER_SEC = fps;
+
+	public void setFramesPerSecond(int fps) {
+		if (fps > 0)
+			this.FRAMES_PER_SEC = fps;
 	}
 
 	public void setUpMainFrame(String gameId, int width, int height) {
@@ -89,40 +88,42 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 			gameTimer.stop();
 		}
 	}
-	
-	public void exitGame(){
+
+	public void exitGame() {
 		stop();
 		this.mainFrame.setVisible(false);
 		this.mainFrame.dispose();
 	}
-	
+
 	/**
 	 * Close the window
-	 * */
-	public void closeGame(){
+	 */
+	public void closeGame() {
 		this.stop();
-		if(this.getMainFrame() != null){
+		if (this.getMainFrame() != null) {
 			this.getMainFrame().setVisible(false);
 			this.getMainFrame().dispose();
 		}
 	}
 
-
 	/**
 	 * Called once per frame. updates the game, redraws the screen, etc. May
 	 * need to optimize this if games get too slow.
-	 * */
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		repaintGame();
 	}
-	
+
 	/**
 	 * Forces a repaint
-	 * */
-	public void repaint(){repaintGame();}
-	public void repaintGame(){
-		if(getScenePanel() != null){
+	 */
+	public void repaint() {
+		repaintGame();
+	}
+
+	public void repaintGame() {
+		if (getScenePanel() != null) {
 			getScenePanel().validate();
 			getScenePanel().repaint();
 		}
@@ -137,26 +138,24 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 			/* Draw everything on the screen */
 			this.draw(g);
 		} catch (Exception e) {
-			System.out
-					.println("Exception in nextFrame of game. Stopping game (no frames will be drawn anymore");
+			System.out.println("Exception in nextFrame of game. Stopping game (no frames will be drawn anymore");
 			stop();
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
-	public void draw(Graphics g){
+	public void draw(Graphics g) {
 		/* Start with no transparency */
-		((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				1.0f));
-		
+		((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+
 		super.draw(g);
 	}
 
 	public JFrame getMainFrame() {
 		return this.mainFrame;
 	}
-	
+
 	public void setScenePanel(GameScenePanel scenePanel) {
 		this.scenePanel = scenePanel;
 		this.getMainFrame().add(this.scenePanel);
@@ -169,24 +168,23 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 	}
 
 	ArrayList<String> pressedKeys = new ArrayList<String>();
+
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(!pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
+		if (!pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
 			pressedKeys.add(KeyEvent.getKeyText(e.getKeyCode()));
 	}
 
-
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if(pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
+		if (pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
 			pressedKeys.remove(KeyEvent.getKeyText(e.getKeyCode()));
-		
-	}
 
+	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
