@@ -8,21 +8,32 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import edu.virginia.engine.events.Event;
+import edu.virginia.engine.events.IEventDispatcher;
+import edu.virginia.engine.events.IEventListener;
 
 /**
  * A very basic display object for a java based gaming engine
  * 
  */
-public class DisplayObject {
+public class DisplayObject implements IEventDispatcher {
+
+	private static final String UP_KEY = "Up";
+	private static final String DOWN_KEY = "Down";
+	private static final String LEFT_KEY = "Left";
+	private static final String RIGHT_KEY = "Right";
 
 	/* All DisplayObject have a unique id */
 	protected String id;
 
 	/* The image that is displayed by this object */
 	protected BufferedImage displayImage;
-	
+
 	protected boolean visible = true;
 
 	protected int xPosition;
@@ -36,6 +47,13 @@ public class DisplayObject {
 	protected float alpha = 1.0f;
 	protected float prevAlpha;
 
+	protected boolean respondToKeys = false;
+	
+	protected HashMap<String, List<IEventListener> > eventListeners = new HashMap<String, List<IEventListener> >();
+
+	public void setRespondToKeys(boolean flag) {
+		respondToKeys = flag;
+	}
 
 	public boolean isVisible() {
 		return visible;
@@ -183,7 +201,22 @@ public class DisplayObject {
 	 * to update objects appropriately.
 	 */
 	protected void update(ArrayList<String> pressedKeys) {
-
+		if (respondToKeys) {
+			for (String key : pressedKeys) {
+				if (key.equals(UP_KEY)) {
+					yPosition -= 1.0f;
+				}
+				if (key.equals(DOWN_KEY)) {
+					yPosition += 1.0f;
+				}
+				if (key.equals(LEFT_KEY)) {
+					xPosition -= 1.0f;
+				}
+				if (key.equals(RIGHT_KEY)) {
+					xPosition += 1.0f;
+				}
+			}
+		}
 	}
 
 	/**
@@ -239,6 +272,44 @@ public class DisplayObject {
 		g2d.scale(1 / scaleX, 1 / scaleY);
 		g2d.rotate(-rotation, pivotPoint.getX(), pivotPoint.getY());
 		g2d.translate(-xPosition, -yPosition);
+	}
+
+	@Override
+	public void addEventListener(IEventListener listener, String eventType) {
+		if(eventListeners.containsKey(eventType)) {
+			eventListeners.get(eventType).add(listener);
+		} else {
+			List<IEventListener> listeners = new ArrayList<IEventListener>();
+			listeners.add(listener);
+			eventListeners.put(eventType, listeners);
+		}
+		
+	}
+
+	@Override
+	public void removeEventListener(IEventListener listener, String eventType) {
+		if(eventListeners.containsKey(eventType)) {
+			eventListeners.get(eventType).remove(listener);
+		}
+	}
+
+	@Override
+	public void dispatchEvent(Event event) {
+		String eventType = event.getEventType();
+		if(eventListeners.containsKey(eventType)) {
+			for(IEventListener each : eventListeners.get(eventType)) {
+				each.handleEvent(event);
+			}
+		}
+	}
+
+	@Override
+	public boolean hasEventListener(IEventListener listener, String eventType) {
+		if(eventListeners.containsKey(eventType)) {
+			return eventListeners.get(eventType).contains(listener);
+		} else {
+			return false;
+		}
 	}
 
 }

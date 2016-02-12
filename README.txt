@@ -1,2 +1,2 @@
-Lab2 submission:
-Animation can be changed in the constructor of LabOneGame.java. There are "jump" and "walk".
+Lab3 submission:
+Health bars are added to marios. For demo purposes, the transformations done on lab 2 are also applied to the health bar.
