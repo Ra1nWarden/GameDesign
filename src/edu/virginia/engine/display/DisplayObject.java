@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import edu.virginia.engine.events.CollideEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.events.IEventDispatcher;
 import edu.virginia.engine.events.IEventListener;
@@ -33,6 +35,8 @@ public class DisplayObject implements IEventDispatcher {
 
 	/* The image that is displayed by this object */
 	protected BufferedImage displayImage;
+	
+	protected DisplayObject parent;
 
 	protected boolean visible = true;
 
@@ -48,6 +52,7 @@ public class DisplayObject implements IEventDispatcher {
 	protected float prevAlpha;
 
 	protected boolean respondToKeys = false;
+	protected List<DisplayObject> collidableObjects = new ArrayList<DisplayObject>();
 	
 	protected HashMap<String, List<IEventListener> > eventListeners = new HashMap<String, List<IEventListener> >();
 
@@ -123,6 +128,14 @@ public class DisplayObject implements IEventDispatcher {
 		this.displayImage = displayImage;
 	}
 
+	public DisplayObject getParent() {
+		return parent;
+	}
+
+	public void setParent(DisplayObject parent) {
+		this.parent = parent;
+	}
+
 	/**
 	 * Constructors: can pass in the id OR the id and image's file path and
 	 * position OR the id and a buffered image and position
@@ -194,6 +207,30 @@ public class DisplayObject implements IEventDispatcher {
 			return;
 		displayImage = image;
 	}
+	
+	public Rectangle getHitbox() {
+		return getHitboxForParent(parent);
+	}
+	
+	public Rectangle getHitboxForParent(DisplayObject target) {
+		if(target == parent) {
+			return new Rectangle(xPosition, yPosition, getUnscaledWidth(), getUnscaledHeight());
+		} else {
+			if(parent == null) {
+				throw new IllegalArgumentException();
+			}
+			Rectangle prev = parent.getHitboxForParent(target);
+			prev.x += xPosition;
+			prev.y += yPosition;
+			return prev;
+		}
+	}
+	
+	public boolean collidesWith(DisplayObject obj) {
+		Rectangle globalRectangle1 = this.getHitboxForParent(null);
+		Rectangle globalRectangle2 = obj.getHitboxForParent(null);
+		return globalRectangle1.intersects(globalRectangle2);
+	}
 
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
@@ -204,17 +241,22 @@ public class DisplayObject implements IEventDispatcher {
 		if (respondToKeys) {
 			for (String key : pressedKeys) {
 				if (key.equals(UP_KEY)) {
-					yPosition -= 1.0f;
+					yPosition -= 1;
 				}
 				if (key.equals(DOWN_KEY)) {
-					yPosition += 1.0f;
+					yPosition += 1;
 				}
 				if (key.equals(LEFT_KEY)) {
-					xPosition -= 1.0f;
+					xPosition -= 1;
 				}
 				if (key.equals(RIGHT_KEY)) {
-					xPosition += 1.0f;
+					xPosition += 1;
 				}
+			}
+		}
+		for(DisplayObject object : collidableObjects) {
+			if(this.collidesWith(object)) {
+				this.dispatchEvent(new CollideEvent(CollideEvent.COLLIDE_START, this));
 			}
 		}
 	}

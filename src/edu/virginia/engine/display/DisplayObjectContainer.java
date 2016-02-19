@@ -9,7 +9,6 @@ import java.util.List;
 public class DisplayObjectContainer extends DisplayObject {
 
 	private List<DisplayObject> children = new ArrayList<DisplayObject>();
-	private DisplayObject parent;
 
 	public DisplayObjectContainer(String id) {
 		super(id);
@@ -25,10 +24,12 @@ public class DisplayObjectContainer extends DisplayObject {
 	
 	public void addChild(DisplayObject child) {
 		children.add(child);
+		child.setParent(this);
 	}
 	
 	public void removeChild(DisplayObject child) {
 		children.remove(child);
+		child.setParent(null);
 	}
 
 	public boolean contains(DisplayObject object) {
