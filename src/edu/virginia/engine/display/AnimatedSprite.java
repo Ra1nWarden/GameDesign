@@ -57,7 +57,7 @@ public class AnimatedSprite extends Sprite {
 	}
 
 	@Override
-	public void update(ArrayList<String> pressedKeys) {
+	protected void update(ArrayList<String> pressedKeys) {
 		super.update(pressedKeys);
 		if (isPlaying && animationName != null) {
 			long time = System.nanoTime() - startTime;

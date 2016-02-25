@@ -25,10 +25,11 @@ import edu.virginia.engine.events.IEventListener;
  */
 public class DisplayObject implements IEventDispatcher {
 
-	private static final String UP_KEY = "Up";
-	private static final String DOWN_KEY = "Down";
-	private static final String LEFT_KEY = "Left";
-	private static final String RIGHT_KEY = "Right";
+	protected static final String UP_KEY = "Up";
+	protected static final String DOWN_KEY = "Down";
+	protected static final String LEFT_KEY = "Left";
+	protected static final String RIGHT_KEY = "Right";
+	protected static final int MOVE_DELTA = 3;
 
 	/* All DisplayObject have a unique id */
 	protected String id;
@@ -222,6 +223,8 @@ public class DisplayObject implements IEventDispatcher {
 			Rectangle prev = parent.getHitboxForParent(target);
 			prev.x += xPosition;
 			prev.y += yPosition;
+			prev.width = getUnscaledWidth();
+			prev.height = getUnscaledHeight();
 			return prev;
 		}
 	}
@@ -230,6 +233,10 @@ public class DisplayObject implements IEventDispatcher {
 		Rectangle globalRectangle1 = this.getHitboxForParent(null);
 		Rectangle globalRectangle2 = obj.getHitboxForParent(null);
 		return globalRectangle1.intersects(globalRectangle2);
+	}
+	
+	public void addCollidableObject(DisplayObject obj) {
+		collidableObjects.add(obj);
 	}
 
 	/**
@@ -241,16 +248,16 @@ public class DisplayObject implements IEventDispatcher {
 		if (respondToKeys) {
 			for (String key : pressedKeys) {
 				if (key.equals(UP_KEY)) {
-					yPosition -= 1;
+					yPosition -= MOVE_DELTA;
 				}
 				if (key.equals(DOWN_KEY)) {
-					yPosition += 1;
+					yPosition += MOVE_DELTA;
 				}
 				if (key.equals(LEFT_KEY)) {
-					xPosition -= 1;
+					xPosition -= MOVE_DELTA;
 				}
 				if (key.equals(RIGHT_KEY)) {
-					xPosition += 1;
+					xPosition += MOVE_DELTA;
 				}
 			}
 		}

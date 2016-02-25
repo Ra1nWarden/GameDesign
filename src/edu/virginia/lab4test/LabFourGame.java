@@ -26,8 +26,6 @@ public class LabFourGame extends Game {
 		mario.setRespondToKeys(true);
 		mario.setCycleTimeInNanoSec(1000000000);
 		coin = new Sprite("Coin", "coin.png");
-		coin.setScaleX(0.3f);
-		coin.setScaleY(0.3f);
 		Random rnd = new Random(System.currentTimeMillis());
 		coin.setxPosition(rnd.nextInt(800));
 		coin.setyPosition(rnd.nextInt(800));
