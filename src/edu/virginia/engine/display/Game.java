@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import edu.virginia.engine.tween.TweenJuggler;
+
 /**
  * Highest level class for creating a game in Java.
  * 
@@ -134,7 +136,7 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 		try {
 			/* Update all objects on the stage */
 			this.update(pressedKeys);
-
+			TweenJuggler.getInstance().nextFrame();
 			/* Draw everything on the screen */
 			this.draw(g);
 		} catch (Exception e) {
